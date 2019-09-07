@@ -68,10 +68,21 @@ detect_x86_simd()
 
 	if (ebx & (1 << 5))
 		hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX2);
+<<<<<<< Updated upstream
 	if (ebx & (1 << 16))
 		hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX512);
 	if (ebx & (1 << 30))
 		hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX512BW);
+=======
+        if (ebx & (1 << 16))
+                hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX512);
+        if (ebx & (1<<30))
+                hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX512BW);
+
+	if (ecx & (1 << 8) && MOEPGF_HWCAPS_SIMD_AVX512)
+		hwcaps |= (1 << MOEPGF_HWCAPS_SIMD_AVX512_GFNI);
+
+>>>>>>> Stashed changes
 
 	return hwcaps;
 }
