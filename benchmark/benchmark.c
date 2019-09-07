@@ -188,6 +188,8 @@ selftest()
 		fprintf(stderr, "AVX512F ");
 	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX512BW))
 		fprintf(stderr, "AVX512BW ");
+	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX512F_GFNI))
+		fprintf(stderr, "AVX512F_GFNI ");
 	if (fset & (1 << MOEPGF_HWCAPS_SIMD_NEON))
 		fprintf(stderr, "NEON ");
 	fprintf(stderr, "\n\n");
