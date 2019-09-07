@@ -43,7 +43,7 @@ static const uint8_t tl[MOEPGF16_SIZE][16] = MOEPGF16_SHUFFLE_LOW_TABLE;
 static const uint8_t th[MOEPGF16_SIZE][16] = MOEPGF16_SHUFFLE_HIGH_TABLE;
 
 void
-maddrc16_shuffle_avx512(uint8_t* region1, const uint8_t* region2,
+maddrc16_shuffle_avx512bw(uint8_t* region1, const uint8_t* region2,
 					uint8_t constant, size_t length)
 {
 	uint8_t *end;
@@ -54,7 +54,7 @@ maddrc16_shuffle_avx512(uint8_t* region1, const uint8_t* region2,
 		return;
 
 	if (constant == 1) {
-		xorr_avx512(region1, region2, length);
+		xorr_avx512f(region1, region2, length);
 		return;
 	}
 
@@ -80,7 +80,7 @@ maddrc16_shuffle_avx512(uint8_t* region1, const uint8_t* region2,
 }
 
 void
-mulrc16_shuffle_avx512(uint8_t *region, uint8_t constant, size_t length)
+mulrc16_shuffle_avx512bw(uint8_t *region, uint8_t constant, size_t length)
 {
 	uint8_t *end;
 	register __m512i in, out, t1, t2, m1, m2, l, h;

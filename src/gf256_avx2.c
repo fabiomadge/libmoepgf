@@ -86,7 +86,7 @@ maddrc256_imul_avx2(uint8_t *region1, const uint8_t *region2,
 	uint8_t *end;
 	register __m256i ri[8], mi[8], sp[8], reg1, reg2;
 	const uint8_t *p = pt[constant];
-	
+
 	if (constant == 0)
 		return;
 
@@ -94,7 +94,7 @@ maddrc256_imul_avx2(uint8_t *region1, const uint8_t *region2,
 		xorr_avx2(region1, region2, length);
 		return;
 	}
-	
+
 	mi[0] = _mm256_set1_epi8(0x01);
 	mi[1] = _mm256_set1_epi8(0x02);
 	mi[2] = _mm256_set1_epi8(0x04);

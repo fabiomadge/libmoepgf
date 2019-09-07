@@ -94,7 +94,7 @@ maddrc16_imul_avx2(uint8_t* region1, const uint8_t* region2,
 		xorr_avx2(region1, region2, length);
 		return;
 	}
-	
+
 	mi[0] = _mm256_set1_epi8(0x11);
 	mi[1] = _mm256_set1_epi8(0x22);
 	mi[2] = _mm256_set1_epi8(0x44);

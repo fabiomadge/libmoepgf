@@ -184,8 +184,8 @@ selftest()
 		fprintf(stderr, "AVX ");
 	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX2))
 		fprintf(stderr, "AVX2 ");
-	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX512))
-		fprintf(stderr, "AVX512 ");
+	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX512F))
+		fprintf(stderr, "AVX512F ");
 	if (fset & (1 << MOEPGF_HWCAPS_SIMD_AVX512BW))
 		fprintf(stderr, "AVX512BW ");
 	if (fset & (1 << MOEPGF_HWCAPS_SIMD_NEON))

@@ -82,11 +82,11 @@ maddrc2_avx2(uint8_t *region1, const uint8_t *region2,
 }
 
 inline void
-maddrc2_avx512(uint8_t *region1, const uint8_t *region2,
+maddrc2_avx512f(uint8_t *region1, const uint8_t *region2,
 				uint8_t constant, size_t length)
 {
 	if (constant != 0)
-		xorr_avx512(region1, region2, length);
+		xorr_avx512f(region1, region2, length);
 }
 #endif
 

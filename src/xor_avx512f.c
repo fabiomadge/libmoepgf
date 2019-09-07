@@ -31,7 +31,7 @@
 #include "xor.h"
 
 void
-xorr_avx512(uint8_t *region1, const uint8_t *region2, size_t length)
+xorr_avx512f(uint8_t *region1, const uint8_t *region2, size_t length)
 {
 	uint8_t *end;
 	register __m512i in, out;

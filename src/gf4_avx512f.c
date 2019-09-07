@@ -39,17 +39,16 @@
 #error "Invalid prime polynomial or tables not available."
 #endif
 
-static const uint8_t tl[4][16] = MOEPGF4_SHUFFLE_LOW_TABLE;
-static const uint8_t th[4][16] = MOEPGF4_SHUFFLE_HIGH_TABLE;
+static const uint8_t pt[MOEPGF4_SIZE][MOEPGF16_EXPONENT] = MOEPGF4_POLYNOMIAL_DIV_TABLE;
 
 
 void
-maddrc4_shuffle_avx512bw(uint8_t *region1, const uint8_t *region2, uint8_t constant,
+maddrc4_imul_avx512f(uint8_t *region1, const uint8_t *region2, uint8_t constant,
 								size_t length)
 {
 	uint8_t *end;
-	register __m512i in1, in2, out, t1, t2, m1, m2, l, h;
-	register __m128i bc;
+	register __m512i reg1, reg2, ri[2], sp[2], mi[2];
+	const uint8_t *p = pt[constant];
 
 	if (constant == 0)
 		return;
@@ -59,33 +58,31 @@ maddrc4_shuffle_avx512bw(uint8_t *region1, const uint8_t *region2, uint8_t const
 		return;
 	}
 
-	bc = _mm_load_si128((void *)tl[constant]);
-	t1 = _mm512_broadcast_i32x4 (bc);
-	bc = _mm_load_si128((void *)th[constant]);
-	t2 = _mm512_broadcast_i32x4 (bc);
-	m1 = _mm512_set1_epi8(0x0f);
-	m2 = _mm512_set1_epi8(0xf0);
+	mi[0] = _mm512_set1_epi8(0x55);
+	mi[1] = _mm512_set1_epi8(0xaa);
+	sp[0] = _mm512_set1_epi32(p[0]);
+	sp[1] = _mm512_set1_epi32(p[1]);
 
 	for (end=region1+length; region1<end; region1+=64, region2+=64) {
-		in2 = _mm512_load_si512((void *)region2);
-		in1 = _mm512_load_si512((void *)region1);
-		l = _mm512_and_si512(in2, m1);
-		l = _mm512_shuffle_epi8(t1, l);
-		h = _mm512_and_si512(in2, m2);
-		h = _mm512_srli_epi64(h, 4);
-		h = _mm512_shuffle_epi8(t2, h);
-		out = _mm512_xor_si512(h,l);
-		out = _mm512_xor_si512(out, in1);
-		_mm512_store_si512((void *)region1, out);
+		reg2 = _mm512_load_si512((void *)region2);
+		reg1 = _mm512_load_si512((void *)region1);
+		ri[0] = _mm512_and_si512(reg2, mi[0]);
+		ri[1] = _mm512_and_si512(reg2, mi[1]);
+		ri[1] = _mm512_srli_epi32(ri[1], 1);
+		ri[0] = _mm512_mullo_epi32(ri[0], sp[0]);
+		ri[1] = _mm512_mullo_epi32(ri[1], sp[1]);
+		ri[0] = _mm512_xor_si512(ri[0], ri[1]);
+		ri[0] = _mm512_xor_si512(ri[0], reg1);
+		_mm512_store_si512((void *)region1, ri[0]);
 	}
 }
 
 void
-mulrc4_shuffle_avx512bw(uint8_t *region, uint8_t constant, size_t length)
+mulrc4_imul_avx512f(uint8_t *region, uint8_t constant, size_t length)
 {
 	uint8_t *end;
-	register __m512i in, out, t1, t2, m1, m2, l, h;
-	register __m128i bc;
+	register __m512i reg, ri[2], sp[2], mi[2];
+	const uint8_t *p = pt[constant];
 
 	if (constant == 0) {
 		memset(region, 0, length);
@@ -95,21 +92,19 @@ mulrc4_shuffle_avx512bw(uint8_t *region, uint8_t constant, size_t length)
 	if (constant == 1)
 		return;
 
-	bc = _mm_load_si128((void *)tl[constant]);
-	t1 = _mm512_broadcast_i32x4 (bc);
-	bc = _mm_load_si128((void *)th[constant]);
-	t2 = _mm512_broadcast_i32x4 (bc);
-	m1 = _mm512_set1_epi8(0x0f);
-	m2 = _mm512_set1_epi8(0xf0);
+	mi[0] = _mm512_set1_epi8(0x55);
+	mi[1] = _mm512_set1_epi8(0xaa);
+	sp[0] = _mm512_set1_epi32(p[0]);
+	sp[1] = _mm512_set1_epi32(p[1]);
 
-	for (end=region+length; region<end; region+=32) {
-		in = _mm512_load_si512((void *)region);
-		l = _mm512_and_si512(in, m1);
-		l = _mm512_shuffle_epi8(t1, l);
-		h = _mm512_and_si512(in, m2);
-		h = _mm512_srli_epi64(h, 4);
-		h = _mm512_shuffle_epi8(t2, h);
-		out = _mm512_xor_si512(h,l);
-		_mm512_store_si512((void *)region, out);
+	for (end=region+length; region<end; region+=64) {
+		reg = _mm512_load_si512((void *)region);
+		ri[0] = _mm512_and_si512(reg, mi[0]);
+		ri[1] = _mm512_and_si512(reg, mi[1]);
+		ri[1] = _mm512_srli_epi32(ri[1], 1);
+		ri[0] = _mm512_mullo_epi32(ri[0], sp[0]);
+		ri[1] = _mm512_mullo_epi32(ri[1], sp[1]);
+		ri[0] = _mm512_xor_si512(ri[0], ri[1]);
+		_mm512_store_si512((void *)region, ri[0]);
 	}
 }
